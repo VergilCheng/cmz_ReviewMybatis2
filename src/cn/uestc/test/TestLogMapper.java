@@ -51,8 +51,43 @@ public class TestLogMapper {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         logMapper logMapper = sqlSession.getMapper(logMapper.class);
-        Log log = logMapper.selectByAccInAccout("6227", "0038",2 );
+        Log log = logMapper.selectByAccInAccoutId("6227", "0038",2 );
         System.out.println(log);
 
+    }
+
+    /**
+     * 动态sql,
+     */
+    @Test
+    public void test3() throws IOException {
+        InputStream resourceAsStream = Resources.getResourceAsStream("mybatis.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        //测试if与where标签
+        String accIn = "0038";
+        String accOunt = "6227";
+        logMapper mapper = sqlSession.getMapper(logMapper.class);
+        List<Log> logs = mapper.selectByAccInAccout(accOunt, accIn);
+        for (Log log:
+             logs) {
+            System.out.println(log);
+        }
+        //测试foreach标签
+        Integer[] ids = new Integer[]{1, 2, 3, 4};
+        List<Log> logs1 = mapper.selectByIds(ids);
+        for (Log log:
+                logs1) {
+            System.out.println(log);
+        }
+        //测试set标签
+        Log log2 = new Log();
+        log2.setId(2);
+        log2.setAcconOut("1234");
+        log2.setAcconIn("56788");
+        log2.setBalance(7000.0);
+        int i = mapper.updateLog(log2);
+        System.out.println(i);
+        sqlSession.commit();
     }
 }

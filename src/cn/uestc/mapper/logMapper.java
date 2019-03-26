@@ -21,5 +21,11 @@ public interface logMapper {
      * @param id
      * @return
      */
-    Log selectByAccInAccout(@Param("accout") String acconOut, @Param("accin") String acconIn, @Param("id") Integer id);
+    Log selectByAccInAccoutId(@Param("accout") String acconOut, @Param("accin") String acconIn, @Param("id") Integer id);
+
+    List<Log> selectByAccInAccout(@Param("accout") String acconOut, @Param("accin") String acconIn);
+    List<Log> selectByIds(@Param("ids")Integer... ids);
+
+    int updateLog(Log log);
+
 }
