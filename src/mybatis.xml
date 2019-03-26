@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--通过settings标签对mybatis进行日志处理的配置
+            mybatis支持日志处理，可以将我们程序具体调用哪一条sql写到日志文件中
+    -->
+    <settings>
+        <!--设置我们输出到日志文件中的信息的前缀字符串，方便在各种程序启动日志中找到相关sql的信息的日志，便于定位
+
+            PS:关于settings标签中的logPrefix会和log4j.properties文件中的"log4j.logger.cn.uestc.mapper=DEBUG"，
+            也就是局部日志信息输出级别进行冲突。如果我们配置了logPrefix的同时也设置了局部日志信息的输出级别
+            控制台和日志文件则不会有任何日志的输入
+               这是因为logPrefix所控制的日志输出为调用sql程序的相关日志，而"log4j.logger.cn.uestc.mapper=DEBUG"
+            正好也是控制sql程序的相关日志。两者功能都是筛选，所以两者冲突，导致日志文件和控制台没有信息。
+               如果我们将log4j.properties中“log4j.logger.cn.uestc.mapper=DEBUG”删除，则日志文件和控制台中会输出所有
+            debug级别的日志信息。同时关于sql的日志会在前面加上“关于sql的相关日志”，而如果我们在这里将logPrefix
+            注释掉，则日志文件信息和控制台只会输出关于sql的日志信息，而其他信息可以通过设置全局级别设置成ERROR而过滤
+            掉其他信息的debug信息-->
+       <!-- <setting name="logPrefix" value="关于sql的相关日志："/>-->
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+
+
+    <!--mybatis为了减少打字量，提供了别名机制，可以给类名或者包名起别名，简化繁琐的书写-->
+    <typeAliases>
+        <!--给类起别名-->
+        <!--<typeAlias type="cn.uestc.pojo.People" alias="People"/>-->
+        <!--如果一个包中类很多，则typeAlias字段不适用，mybatis提供包的声明，
+            被声明的包下的类的别名直接为除去包名后的类名，并且区分大小写！-->
+        <package name="cn.uestc.pojo"/>
+    </typeAliases>
+
+    <!-- default:引用 environment 的 id,当前所使用的JDBC环境，可以在configuration中配置多种enviroment环境，例如oracle和mysql、sqlServer等-->
+    <environments default="default">
+        <!--声明可以使用的环境-->
+        <environment id="default">
+            <!--事务控制与JDBC的事务控制是相同的。默认为自动提交-->
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED"><!--默认为数据库的连接池，也有不是连接池的-->
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/ssm"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123asd,./"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--在mybatis.xml文件中需要加载对应类的Mapper文件或者与mapper文件对应的包中接口
+        PS:由于只使用加载mapper文件的方式，不能够灵活的实现多参数注入sql，需要频繁的构建对象或者map来实现多参数注入
+        为了解决这个问题，可以创建一个与mapper文件中namespace同名的接口，即可实现多参数注入
+        对这一方案的要求：
+        1.创建接口，接口包名和接口名与 mapper.xml 中<mapper>namespace相同
+        2.接口中方法名和 mapper.xml 标签的 id 属性相同
+        3.在 mybatis.xml 中使用<package>进行扫描接口和 mapper.xml-->
+    <mappers>
+        <package name="cn.uestc.mapper"/>
+    </mappers>
+</configuration>
