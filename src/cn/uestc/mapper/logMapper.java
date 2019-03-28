@@ -28,4 +28,6 @@ public interface logMapper {
 
     int updateLog(Log log);
 
+    int insert(Log log);
+
 }

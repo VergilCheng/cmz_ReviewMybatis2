@@ -18,7 +18,8 @@ import java.util.List;
 
 public class TestLogMapper {
     /**
-     * 测试接口绑定mapper.xml文件查询
+     * 测试接口绑定mapper.xml文件
+     * 查询
      * @throws IOException
      */
     @Test

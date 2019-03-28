@@ -11,6 +11,11 @@
     <title>$Title$</title>
   </head>
   <body>
-  $END$
+  <form action="/cmz_ReviewMybatis2/insert" method="post">
+    <input type="text" name="accin"/><br/>
+    <input type="text" name="accout"/><br/>
+    <input type="text" name="money"/><br/>
+    <input type="submit" value="sumbit">
+  </form>
   </body>
 </html>

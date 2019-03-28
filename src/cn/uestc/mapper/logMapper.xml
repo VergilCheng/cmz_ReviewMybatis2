@@ -5,8 +5,12 @@
 
 <mapper namespace="cn.uestc.mapper.logMapper">
 
+    <!--添加catch标签，运用二级缓存-->
+    <cache readOnly="true"></cache>
+
+
     <!--日志插入-->
-    <insert id="insertLog" parameterType="Log">
+    <insert id="insert" parameterType="Log">
         insert into log values (default ,#{acconOut},#{acconIn},#{balance});
     </insert>
 
@@ -97,7 +101,7 @@
     <!--某些 SQL 片段如果希望复用,可以使用<sql>定义这个片段-->
     <sql id="logColumns">id,acconOut,acconIn,balance</sql>
     <select id="selectColumns">
-        select <include refid="mysql"></include>
+        select <include refid="logColumns"></include>
         from log
     </select>
 </mapper>
