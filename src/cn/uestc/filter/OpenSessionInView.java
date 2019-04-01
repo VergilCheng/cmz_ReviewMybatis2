@@ -38,6 +38,7 @@ public class OpenSessionInView implements Filter {
             filterChain.doFilter(servletRequest,servletResponse);
             sqlSession.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             Logger logger = Logger.getLogger(OpenSessionInView.class);
             logger.error(e.getMessage());
             sqlSession.rollback();

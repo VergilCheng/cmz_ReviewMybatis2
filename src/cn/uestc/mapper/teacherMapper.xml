@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="cn.uestc.mapper.teacherMapper">
+
+    <select id="selById" parameterType="int" resultType="teacher">
+        select * from teacher where id=#{0};
+
+    </select>
+
+    <!--
+        resultMap 标签
+        1. <resultMap>标签写在 mapper.xml中,由程序员控制 SQL查询结果与
+        实体类的映射关系.
+        1.1 默认 MyBatis 使用 Auto Mapping 特性.
+        2. 使用<resultMap>标签时,<select>标签不写 resultType 属性,而是使
+        用 resultMap 属性引用<resultMap>标签.
+    -->
+
+    <!--测试单表使用resultMap标签与resultMap属性-->
+    <resultMap id="teacherMap" type="ResultMap_Teacher">
+        <!--主键,联合主键都使用id标签配置映射关系-->
+        <id column="id" property="id1"/>
+        <!--其他列使用result标签配置映射关系-->
+        <result column="name" property="name1"/>
+    </resultMap>
+    <select id="selAll" resultMap="teacherMap">
+        select * from teacher;
+    </select>
+
+    <!--测试使用resultMap关联集合对象（N+1方式）-->
+    <resultMap id="teacherMap2" type="Teacher">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <collection property="list"
+                    ofType="Student"
+                    select ="cn.uestc.mapper.studentMapper.selByTid"
+                    column="id">
+        </collection>
+    </resultMap>
+    <select id="selAll2" resultMap="teacherMap2">
+        select * from teacher;
+    </select>
+
+    <!--测试使用resultMap关联集合对象（联合查询方式）-->
+    <resultMap id="teacherMap3" type="Teacher">
+        <id column="t_id" property="id"/>
+        <result column="t_name" property="name"/>
+        <!--将collection标签当成resultMap使用-->
+        <collection property="list"
+                    ofType="Student">
+            <id column="s_id" property="id"/>
+            <result column="s_name" property="name"/>
+            <result column="age" property="age"/>
+            <result property="tid" column="tid"/>
+        </collection>
+    </resultMap>
+    <select id="selAll3" resultMap="teacherMap3">
+        select t.id t_id, t.name t_name,s.id s_id,s.name s_name,age,tid from teacher t left join student s on t.id = s.tid;
+    </select>
+
+</mapper>

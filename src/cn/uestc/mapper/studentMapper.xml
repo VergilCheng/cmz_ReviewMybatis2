@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--做mapper文件接口绑定时要注意，mapper文件名称要与接口名称一样，不然会mybaits不会生成相应的statement对象-->
+<mapper namespace="cn.uestc.mapper.studentMapper">
+
+    <select id="selCount" resultType="long">
+        select count(*) from student
+        <where>
+            <if test="sname!=null and sname!=''">
+                <bind name="sname" value="'%'+sname+'%'"></bind>
+                name like #{sname}
+            </if>
+            <if test="tname!=null and tname!=''">
+                <bind name="tname" value="'%'+tname+'%'"></bind>
+                and tid in (select id from teacher where name like#{tname})
+            </if>
+        </where>
+    </select>
+
+    <select id="selByPage" parameterType="PageInfo" resultType="Student">
+        select * from student
+        <where>
+            <if test="sname!=null and sname!=''">
+                <bind name="sname" value="'%'+sname+'%'"></bind>
+                name like #{sname}
+            </if>
+            <if test="tname!=null and tname!=''">
+                <bind name="tname" value="'%'+tname+'%'"></bind>
+                and tid in (select id from teacher where name like#{tname})
+            </if>
+        </where>
+        limit #{pageStart},#{pageSize};
+    </select>
+
+    <select id="selByTid" resultType="Student">
+        select * from student where tid=#{0}
+    </select>
+
+    <!--使用 resultMap 实现关联单个对象的N+1 方式（不写联合查询sql）-->
+    <resultMap id="stuMap" type="Student">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="tid" column="tid"/>
+        <!-- 如果关联的是一个对象，使用association标签
+             如果关联的是一个集合，使用collection标签-->
+        <association property="teacher"
+                     select="cn.uestc.mapper.teacherMapper.selById"
+                     column="tid">
+        </association>
+    </resultMap>
+    <select id="selAll" resultMap="stuMap">
+        select * from student;
+    </select>
+    <!--可将stuMap与selAll进行如下优化-->
+    <resultMap type="Student" id="stuMap2">
+        <!--只映射一个tid
+            解释：大前提使用 N+1 方式时，如果列名和属性名相同可
+                  以不配置,使用mybatis自带的Auto mapping 特性（自动映射）。
+                  但是 mybatis 默认只会给列映射一次。
+
+            上述表述较为晦涩，我们可以配合当前的selAll2和stuMap2来举例说明：
+            如果我们将下面这句result标签的映射去掉，Student类中的tid属性确实会与列tid进行映射
+            但是是在association标签中作为teacher表的查询方法selById的参数进行一次映射，
+            在这次映射后，mybatis将不会对tid再次进行映射，就会导致查询结果中是student对象
+            的tid值查不到，为null，可以将result标签中的映射关系注释掉查看返回结果的差异-->
+        <result column="tid" property="tid"/>
+        <!-- 如果关联一个对象 -->
+        <association property="teacher"
+                     select="cn.uestc.mapper.teacherMapper.selById"
+                     column="tid">
+        </association>
+    </resultMap>
+    <select id="selAll2" resultMap="stuMap2">
+        select * from student
+    </select>
+
+    <!--使用 resultMap 实现关联单个对象查询（联合查询方式）-->
+    <resultMap id="stuMap3" type="Student">
+        <id property="id" column="s_id"/>
+        <result property="name" column="s_name"/>
+        <result property="age" column="age"/>
+        <result property="tid" column="tid"/>
+        <!--将association标签当成resultMap使用-->
+        <association property="teacher" javaType="Teacher">
+            <id column="t_id" property="id"/>
+            <result property="name" column="t_name"/>
+        </association>
+    </resultMap>
+    <select id="selAll3" resultMap="stuMap3">
+        select
+            s.id s_id,
+            s.name s_name,
+            t.id t_id,
+            t.name t_name,
+            age,
+            tid
+        from student s
+        left join teacher t
+        on s.tid = t.id
+    </select>
+
+
+    <!--使用AutoMapping与别名特性做多表查询
+        1.将t.id的别名起为Student的teacher属性的属性：teacher.id
+        2.使用反单引号将关键字'.'变为字符串-->
+    <select id="selAll4" resultType="Student">
+        select
+            s.id id,
+            s.name name,
+            t.id `teacher.id`,
+            t.name `teacher.name`,
+            age,
+            tid
+        from student s
+        left join teacher t
+        on s.tid = t.id
+    </select>
+
+</mapper>
