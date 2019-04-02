@@ -35,7 +35,10 @@
     <!--测试使用resultMap关联集合对象（N+1方式）-->
     <resultMap id="teacherMap2" type="Teacher">
         <id column="id" property="id"/>
-        <result column="name" property="name"/>
+        <!--使用N+1方式，可以使用AutoMapping特性，将属性名和列名自动映射1次，可以省去下面的result标签
+            但是由于我们将id作为参数传入下列collection标签的查询参数中，由于只能映射一次，所以需要
+            声明一次id标签的映射关系。-->
+        <!--<result column="name" property="name"/>-->
         <collection property="list"
                     ofType="Student"
                     select ="cn.uestc.mapper.studentMapper.selByTid"
