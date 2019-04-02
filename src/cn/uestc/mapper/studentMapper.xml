@@ -106,7 +106,7 @@
 
     <!--使用AutoMapping与别名特性做多表查询
         1.将t.id的别名起为Student的teacher属性的属性：teacher.id
-        2.使用反单引号将关键字'.'变为字符串-->
+        2.使用反单引号'`'将关键字'.'变为字符串-->
     <select id="selAll4" resultType="Student">
         select
             s.id id,
